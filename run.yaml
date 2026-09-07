@@ -2,11 +2,15 @@ version: 2
 distro_name: wn-responses
 
 # Minimal API set for this demo.
-#   files      -> required by `skills` (bundle blob storage)
+#   files      -> Files API (not needed by the filesystem skills provider, but
+#                 kept so the demo still works if you swap in inline::builtin)
 #   skills     -> /v1alpha/skills, resolves SKILL.md into the model context
 #   responses  -> /v1/responses
 #   vector_io + tool_runtime -> hard api_dependencies of inline::builtin responses
 # NOTE: `ogx go` does NOT enable `skills`, which is why /v1alpha/skills 404s there.
+#
+# Run from the repo root so `module: ogx_skills_fs` is importable:
+#   PYTHONPATH=. uv run ogx run run.yaml --insecure
 apis:
 - files
 - inference
@@ -26,18 +30,17 @@ providers:
   - provider_id: builtin-files
     provider_type: inline::localfs
     config:
-      storage_dir: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/files
+      storage_dir: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses-fs}/files
       metadata_store:
         table_name: files_metadata
         backend: sql_default
 
   skills:
-  - provider_id: builtin
-    provider_type: inline::builtin
+  - provider_id: filesystem
+    provider_type: inline::filesystem
+    module: ogx_skills_fs
     config:
-      persistence:
-        namespace: skills
-        backend: kv_default
+      skills_dir: ${env.OGX_SKILLS_DIR:=./skills}
 
   responses:
   - provider_id: builtin
@@ -66,10 +69,10 @@ storage:
   backends:
     kv_default:
       type: kv_sqlite
-      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/kvstore.db
+      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses-fs}/kvstore.db
     sql_default:
       type: sql_sqlite
-      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/sql_store.db
+      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses-fs}/sql_store.db
   stores:
     metadata:
       namespace: registry
