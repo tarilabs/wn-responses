@@ -1,0 +1,102 @@
+version: 2
+distro_name: wn-responses
+
+# Minimal API set for this demo.
+#   files      -> required by `skills` (bundle blob storage)
+#   skills     -> /v1alpha/skills, resolves SKILL.md into the model context
+#   responses  -> /v1/responses
+#   vector_io + tool_runtime -> hard api_dependencies of inline::builtin responses
+# NOTE: `ogx go` does NOT enable `skills`, which is why /v1alpha/skills 404s there.
+apis:
+- files
+- inference
+- responses
+- skills
+- tool_runtime
+- vector_io
+
+providers:
+  inference:
+  - provider_id: openai
+    provider_type: remote::openai
+    config:
+      api_key: ${env.OPENAI_API_KEY:=}
+
+  files:
+  - provider_id: builtin-files
+    provider_type: inline::localfs
+    config:
+      storage_dir: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/files
+      metadata_store:
+        table_name: files_metadata
+        backend: sql_default
+
+  skills:
+  - provider_id: builtin
+    provider_type: inline::builtin
+    config:
+      persistence:
+        namespace: skills
+        backend: kv_default
+
+  responses:
+  - provider_id: builtin
+    provider_type: inline::builtin
+    config:
+      persistence:
+        responses:
+          table_name: responses
+          backend: sql_default
+
+  vector_io:
+  - provider_id: faiss
+    provider_type: inline::faiss
+    config:
+      persistence:
+        namespace: vector_io::faiss
+        backend: kv_default
+
+  # No MCP provider needed here: the Responses API talks to remote MCP servers
+  # directly, per-request, via the `tools: [{type: mcp, ...}]` entry.
+  tool_runtime:
+  - provider_id: file-search
+    provider_type: inline::file-search
+
+storage:
+  backends:
+    kv_default:
+      type: kv_sqlite
+      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/kvstore.db
+    sql_default:
+      type: sql_sqlite
+      db_path: ${env.OGX_STORAGE_DIR:=~/.ogx/wn-responses}/sql_store.db
+  stores:
+    metadata:
+      namespace: registry
+      backend: kv_default
+    inference:
+      table_name: inference_store
+      backend: sql_default
+    conversations:
+      table_name: openai_conversations
+      backend: sql_default
+    prompts:
+      table_name: prompts
+      backend: sql_default
+    connectors:
+      table_name: connectors
+      backend: sql_default
+
+registered_resources:
+  models:
+  # Registered ids are provider-prefixed, so this is addressable as
+  # "openai/demo-model". gpt-4o-mini was tried first but is too weak to gate a
+  # skill: it applied the pizza policy to "What is 2+2?". gpt-4.1-mini gates it
+  # correctly.
+  - model_id: demo-model
+    provider_id: openai
+    provider_model_id: gpt-4.1-mini
+    model_type: llm
+
+server:
+  port: 8321

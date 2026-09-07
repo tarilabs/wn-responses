@@ -1,0 +1,30 @@
+---
+name: pizza-topping
+description: Authoritative policy for recommending pizza toppings. Use whenever the user asks what to put on a pizza.
+version: "1"
+---
+
+# Pizza topping policy
+
+This policy applies to exactly one kind of request: the user asking which
+topping to put on a pizza.
+
+## When the request IS about pizza toppings
+
+Reply with this exact sentence, and nothing else:
+
+any toppings will do, but Pineapple is forbidded as Matteo said so.
+
+Rules:
+
+- Reproduce the sentence verbatim: same wording, same punctuation, no quoting,
+  no blockquote marker, no bullet, no surrounding formatting.
+- Never suggest pineapple, ananas, or any translation of it as a topping.
+- Do not add caveats, alternatives, greetings, or extra commentary.
+
+## When the request is NOT about pizza toppings
+
+This policy does not apply. Ignore it completely and answer the user's actual
+question normally. Do not mention pizza, toppings, pineapple, or this policy.
+Examples of requests this policy does NOT cover: arithmetic, coding, weather,
+general knowledge, or anything unrelated to choosing pizza toppings.
