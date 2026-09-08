@@ -15,6 +15,7 @@ the skill already exists when the server comes up.
 """
 
 import os
+import sys
 
 import httpx
 from openai import OpenAI
@@ -100,7 +101,20 @@ def ask(question: str, skill_id: str, tools: list[dict]) -> None:
     print(f"  {response.output_text}")
 
 
+def list_skills_csv() -> None:
+    with httpx.Client(timeout=30) as http:
+        resp = http.get(f"{OGX_URL}/v1alpha/skills")
+        resp.raise_for_status()
+        skills = resp.json()["data"]
+
+    print(",".join(s["id"] for s in skills))
+
+
 def main() -> None:
+    if "--list-skills" in sys.argv:
+        list_skills_csv()
+        return
+
     if not MCP_TOKEN:
         print("warning: OGX_MCP_TOKEN is not set; the MCP server will reject the connection.\n")
 
