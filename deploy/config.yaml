@@ -1,0 +1,89 @@
+version: 2
+distro_name: wn-responses
+
+apis:
+- files
+- inference
+- responses
+- skills
+- tool_runtime
+- vector_io
+
+providers:
+  inference:
+  - provider_id: openai
+    provider_type: remote::openai
+    config:
+      api_key: ${env.OPENAI_API_KEY:=}
+
+  files:
+  - provider_id: builtin-files
+    provider_type: inline::localfs
+    config:
+      storage_dir: ${env.OGX_STORAGE_DIR:=/.ogx}/files
+      metadata_store:
+        table_name: files_metadata
+        backend: sql_default
+
+  skills:
+  - provider_id: filesystem
+    provider_type: inline::filesystem
+    module: ogx_skills_fs
+    config:
+      skills_dir: ${env.OGX_SKILLS_DIR:=/skills}
+
+  responses:
+  - provider_id: builtin
+    provider_type: inline::builtin
+    config:
+      persistence:
+        responses:
+          table_name: responses
+          backend: sql_default
+
+  vector_io:
+  - provider_id: faiss
+    provider_type: inline::faiss
+    config:
+      persistence:
+        namespace: vector_io::faiss
+        backend: kv_default
+
+  tool_runtime:
+  - provider_id: file-search
+    provider_type: inline::file-search
+
+storage:
+  backends:
+    kv_default:
+      type: kv_sqlite
+      db_path: ${env.OGX_STORAGE_DIR:=/.ogx}/kvstore.db
+    sql_default:
+      type: sql_sqlite
+      db_path: ${env.OGX_STORAGE_DIR:=/.ogx}/sql_store.db
+  stores:
+    metadata:
+      namespace: registry
+      backend: kv_default
+    inference:
+      table_name: inference_store
+      backend: sql_default
+    conversations:
+      table_name: openai_conversations
+      backend: sql_default
+    prompts:
+      table_name: prompts
+      backend: sql_default
+    connectors:
+      table_name: connectors
+      backend: sql_default
+
+registered_resources:
+  models:
+  - model_id: demo-model
+    provider_id: openai
+    provider_model_id: gpt-4.1-mini
+    model_type: llm
+
+server:
+  port: 8321

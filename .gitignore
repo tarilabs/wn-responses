@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local secrets for Kustomize
+deploy/.env.secret
