@@ -24,6 +24,7 @@ spec:
       size: "10Gi"
       mountPath: "/.ogx"
     overrides:
+      command: ["ogx", "run", "/etc/ogx/config.yaml", "--insecure"]
       env:
       - name: OPENAI_API_KEY
         valueFrom:

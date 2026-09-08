@@ -7,7 +7,7 @@ because it does not enable the `skills` API:
 
 Then:
 
-    export OGX_MCP_TOKEN=<bearer token for the MCP server>
+    export OGX_MCP_TOKEN=$(oc whoami -t)
     uv run python app.py
 
 Nothing here uploads the skill: run.yaml serves skills/ off the filesystem, so

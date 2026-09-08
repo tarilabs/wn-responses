@@ -5,7 +5,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: wn-responses
+    name: wn-responses-service
   port:
     targetPort: 8321
   tls:

@@ -7,3 +7,5 @@ RUN pip install --no-cache-dir ogx[starter] openai
 # PREFER modifying stuff below this line
 
 COPY ogx_skills_fs/ /opt/app-root/lib/python3.12/site-packages/ogx_skills_fs/
+
+CMD ["ogx", "run", "/etc/ogx/config.yaml", "--insecure"]
