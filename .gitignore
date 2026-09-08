@@ -11,3 +11,5 @@ wheels/
 
 # Local secrets for Kustomize
 deploy/.env.secret
+
+.NOTES.md

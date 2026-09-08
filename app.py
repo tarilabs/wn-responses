@@ -22,10 +22,7 @@ from openai import OpenAI
 OGX_URL = os.environ.get("OGX_URL", "http://localhost:8321")
 MODEL = os.environ.get("OGX_MODEL", "openai/demo-model")
 
-MCP_SERVER_URL = os.environ.get(
-    "OGX_MCP_URL",
-    "https://rhoai-mcp-rhoai-mcp.apps.rosa.mmortari-rosa2.54u1.p3.openshiftapps.com/mcp",
-)
+MCP_SERVER_URL = os.environ["OGX_MCP_URL"]
 MCP_TOKEN = os.environ.get("OGX_MCP_TOKEN")
 
 SKILL_NAME = "pizza-topping"
@@ -113,8 +110,9 @@ def main() -> None:
     # Hits the skill: the SKILL.md policy answers this one.
     ask("What topping should I put on my pizza?", skill_id, tools)
 
-    # Hits the MCP server instead; the skill stays out of the way.
-    ask("What tools do you have available, and what can you tell me about the cluster?", skill_id, tools)
+    # Hits the MCP server instead; the skill should stays out of the way.
+    ask("What can you tell me about the cluster?", skill_id, tools)
+    ask("Which data science projects are available?", skill_id, tools)
 
 
 if __name__ == "__main__":
